@@ -1,0 +1,318 @@
+BeforeAll {
+    $modulePath = Join-Path $PSScriptRoot '..' 'PaperclipPS' 'PaperclipPS.psd1'
+    Import-Module $modulePath -Force
+
+    $script:AllFunctions = Get-Command -Module PaperclipPS
+
+    $script:CommonParamNames = @(
+        'Verbose','Debug','ErrorAction','ErrorVariable','WarningAction','WarningVariable',
+        'OutBuffer','OutVariable','PipelineVariable','InformationAction','InformationVariable','ProgressAction'
+    )
+}
+
+Describe 'Module: PaperclipPS' {
+
+    Context 'Module loading' {
+        It 'should import without errors' {
+            { Import-Module (Join-Path $PSScriptRoot '..' 'PaperclipPS' 'PaperclipPS.psd1') -Force } | Should -Not -Throw
+        }
+
+        It 'should export 69 functions' {
+            (Get-Command -Module PaperclipPS).Count | Should -Be 69
+        }
+
+        It 'should not export private helper Invoke-PClipApi' {
+            Get-Command -Module PaperclipPS -Name 'Invoke-PClipApi' -ErrorAction SilentlyContinue | Should -BeNullOrEmpty
+        }
+    }
+
+    Context 'All expected functions are exported' {
+        It 'should export <_>' -ForEach @(
+            'PClip-Activity-List'
+            'PClip-Agent-ConfigRevisions'
+            'PClip-Agent-Create'
+            'PClip-Agent-CreateKey'
+            'PClip-Agent-Get'
+            'PClip-Agent-GetMe'
+            'PClip-AgentHire-Create'
+            'PClip-Agent-InvokeHeartbeat'
+            'PClip-Agent-List'
+            'PClip-Agent-Org'
+            'PClip-Agent-Pause'
+            'PClip-Agent-Resume'
+            'PClip-Agent-RollbackConfig'
+            'PClip-Agent-Terminate'
+            'PClip-Agent-Update'
+            'PClip-Approval-Approve'
+            'PClip-Approval-CommentCreate'
+            'PClip-Approval-CommentList'
+            'PClip-Approval-Create'
+            'PClip-Approval-Get'
+            'PClip-Approval-Issues'
+            'PClip-Approval-List'
+            'PClip-Approval-Reject'
+            'PClip-Approval-RequestRevision'
+            'PClip-Approval-Resubmit'
+            'PClip-Auth-CreateAgentKey'
+            'PClip-Auth-Whoami'
+            'PClip-Company-Archive'
+            'PClip-Company-Create'
+            'PClip-Company-Get'
+            'PClip-Company-List'
+            'PClip-Company-Update'
+            'PClip-Cost-ByAgent'
+            'PClip-Cost-ByProject'
+            'PClip-Cost-ReportEvent'
+            'PClip-Cost-Summary'
+            'PClip-Dashboard-Get'
+            'PClip-Goal-Create'
+            'PClip-Goal-Get'
+            'PClip-Goal-List'
+            'PClip-Goal-Update'
+            'PClip-IssueAttachment-Delete'
+            'PClip-IssueAttachment-Download'
+            'PClip-IssueAttachment-List'
+            'PClip-IssueAttachment-Upload'
+            'PClip-Issue-Checkout'
+            'PClip-IssueComment-Create'
+            'PClip-IssueComment-List'
+            'PClip-Issue-Create'
+            'PClip-IssueDocument-Delete'
+            'PClip-IssueDocument-Get'
+            'PClip-IssueDocument-List'
+            'PClip-IssueDocument-Put'
+            'PClip-IssueDocument-Revisions'
+            'PClip-Issue-Get'
+            'PClip-Issue-List'
+            'PClip-Issue-Release'
+            'PClip-Issue-Update'
+            'PClip-Project-Create'
+            'PClip-Project-Get'
+            'PClip-Project-List'
+            'PClip-Project-Update'
+            'PClip-Secret-Create'
+            'PClip-Secret-List'
+            'PClip-Secret-Update'
+            'PClip-Workspace-Create'
+            'PClip-Workspace-Delete'
+            'PClip-Workspace-List'
+            'PClip-Workspace-Update'
+        ) {
+            $script:AllFunctions.Name | Should -Contain $_
+        }
+    }
+
+    Context 'Common parameters: BaseUrl and Token' {
+        It 'every function should have -BaseUrl with HelpMessage' {
+            $allFunctions = Get-Command -Module PaperclipPS
+            foreach ($fn in $allFunctions) {
+                $param = $fn.Parameters['BaseUrl']
+                $param | Should -Not -BeNullOrEmpty -Because "$($fn.Name) should have BaseUrl"
+                $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+                $attr.HelpMessage | Should -Not -BeNullOrEmpty -Because "$($fn.Name) BaseUrl should have HelpMessage"
+            }
+        }
+
+        It 'every function source should default BaseUrl to http://localhost:3100/api' {
+            $publicDir = Join-Path $PSScriptRoot '..' 'PaperclipPS' 'Public'
+            $files = Get-ChildItem $publicDir -Filter '*.ps1'
+            foreach ($file in $files) {
+                $content = Get-Content $file.FullName -Raw
+                $matches = [regex]::Matches($content, '\$BaseUrl\s*=\s*"([^"]+)"')
+                foreach ($m in $matches) {
+                    $m.Groups[1].Value | Should -Be 'http://localhost:3100/api' -Because "$($file.Name) BaseUrl default"
+                }
+            }
+        }
+
+        It 'every function should have -Token parameter' {
+            $allFunctions = Get-Command -Module PaperclipPS
+            foreach ($fn in $allFunctions) {
+                $fn.Parameters['Token'] | Should -Not -BeNullOrEmpty -Because "$($fn.Name) should have Token"
+            }
+        }
+    }
+
+    Context 'HelpMessage on every parameter' {
+        It 'every user-facing parameter should have a HelpMessage' {
+            $commonParams = @(
+                'Verbose','Debug','ErrorAction','ErrorVariable','WarningAction','WarningVariable',
+                'OutBuffer','OutVariable','PipelineVariable','InformationAction','InformationVariable','ProgressAction'
+            )
+            $allFunctions = Get-Command -Module PaperclipPS
+            foreach ($fn in $allFunctions) {
+                $params = $fn.Parameters.GetEnumerator() | Where-Object { $_.Key -notin $commonParams }
+                foreach ($p in $params) {
+                    $attr = $p.Value.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+                    $attr.HelpMessage | Should -Not -BeNullOrEmpty -Because "$($fn.Name) -$($p.Key) should have HelpMessage"
+                }
+            }
+        }
+    }
+
+    Context 'Company functions' {
+        It 'PClip-Company-Get -CompanyId should be mandatory, position 0, pipeline' {
+            $param = (Get-Command PClip-Company-Get).Parameters['CompanyId']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+            $attr.Position | Should -Be 0
+            $attr.ValueFromPipeline | Should -BeTrue
+        }
+
+        It 'PClip-Company-Create -Name should be mandatory, position 0' {
+            $param = (Get-Command PClip-Company-Create).Parameters['Name']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+            $attr.Position | Should -Be 0
+        }
+    }
+
+    Context 'Agent functions' {
+        It 'PClip-Agent-Get -AgentId should be mandatory, position 0, pipeline' {
+            $param = (Get-Command PClip-Agent-Get).Parameters['AgentId']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+            $attr.Position | Should -Be 0
+            $attr.ValueFromPipeline | Should -BeTrue
+        }
+
+        It 'PClip-Agent-List -CompanyId should be mandatory' {
+            $param = (Get-Command PClip-Agent-List).Parameters['CompanyId']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+        }
+
+        It 'PClip-Agent-RollbackConfig should require AgentId and RevisionId' {
+            $cmd = Get-Command PClip-Agent-RollbackConfig
+            $cmd.Parameters['AgentId'].Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0].Mandatory | Should -BeTrue
+            $cmd.Parameters['RevisionId'].Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0].Mandatory | Should -BeTrue
+        }
+    }
+
+    Context 'Issue functions' {
+        It 'PClip-Issue-Get -IssueId should be mandatory, position 0, pipeline' {
+            $param = (Get-Command PClip-Issue-Get).Parameters['IssueId']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+            $attr.Position | Should -Be 0
+            $attr.ValueFromPipeline | Should -BeTrue
+        }
+
+        It 'PClip-Issue-Create -Status should have ValidateSet' {
+            $param = (Get-Command PClip-Issue-Create).Parameters['Status']
+            $vs = $param.Attributes.Where({ $_ -is [System.Management.Automation.ValidateSetAttribute] })
+            $vs.Count | Should -BeGreaterThan 0
+            $vs[0].ValidValues | Should -Contain 'todo'
+            $vs[0].ValidValues | Should -Contain 'in_progress'
+            $vs[0].ValidValues | Should -Contain 'done'
+            $vs[0].ValidValues | Should -Contain 'cancelled'
+        }
+
+        It 'PClip-Issue-Checkout -ExpectedStatuses should accept array with ValidateSet' {
+            $param = (Get-Command PClip-Issue-Checkout).Parameters['ExpectedStatuses']
+            $param.ParameterType.Name | Should -Be 'String[]'
+            $vs = $param.Attributes.Where({ $_ -is [System.Management.Automation.ValidateSetAttribute] })
+            $vs.Count | Should -BeGreaterThan 0
+        }
+    }
+
+    Context 'Approval functions' {
+        It 'PClip-Approval-Get -ApprovalId should be mandatory, position 0, pipeline' {
+            $param = (Get-Command PClip-Approval-Get).Parameters['ApprovalId']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+            $attr.Position | Should -Be 0
+            $attr.ValueFromPipeline | Should -BeTrue
+        }
+
+        It 'PClip-Approval-List -Status should have ValidateSet with pending, approved, rejected, revision_requested' {
+            $param = (Get-Command PClip-Approval-List).Parameters['Status']
+            $vs = $param.Attributes.Where({ $_ -is [System.Management.Automation.ValidateSetAttribute] })
+            $vs.Count | Should -BeGreaterThan 0
+            $vs[0].ValidValues | Should -Contain 'pending'
+            $vs[0].ValidValues | Should -Contain 'approved'
+            $vs[0].ValidValues | Should -Contain 'rejected'
+            $vs[0].ValidValues | Should -Contain 'revision_requested'
+        }
+    }
+
+    Context 'Goal functions' {
+        It 'PClip-Goal-Get -GoalId should be mandatory, position 0, pipeline' {
+            $param = (Get-Command PClip-Goal-Get).Parameters['GoalId']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+            $attr.Position | Should -Be 0
+            $attr.ValueFromPipeline | Should -BeTrue
+        }
+
+        It 'PClip-Goal-Create -Status should have ValidateSet' {
+            $param = (Get-Command PClip-Goal-Create).Parameters['Status']
+            $vs = $param.Attributes.Where({ $_ -is [System.Management.Automation.ValidateSetAttribute] })
+            $vs.Count | Should -BeGreaterThan 0
+            $vs[0].ValidValues | Should -Contain 'active'
+        }
+    }
+
+    Context 'Project functions' {
+        It 'PClip-Project-Get -ProjectId should be mandatory, position 0, pipeline' {
+            $param = (Get-Command PClip-Project-Get).Parameters['ProjectId']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+            $attr.Position | Should -Be 0
+            $attr.ValueFromPipeline | Should -BeTrue
+        }
+    }
+
+    Context 'Dashboard function' {
+        It 'PClip-Dashboard-Get -CompanyId should be mandatory, position 0, pipeline' {
+            $param = (Get-Command PClip-Dashboard-Get).Parameters['CompanyId']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+            $attr.Position | Should -Be 0
+            $attr.ValueFromPipeline | Should -BeTrue
+        }
+    }
+
+    Context 'Activity function' {
+        It 'PClip-Activity-List -EntityType should have ValidateSet issue, agent, approval' {
+            $param = (Get-Command PClip-Activity-List).Parameters['EntityType']
+            $vs = $param.Attributes.Where({ $_ -is [System.Management.Automation.ValidateSetAttribute] })
+            $vs.Count | Should -BeGreaterThan 0
+            $vs[0].ValidValues | Should -Contain 'issue'
+            $vs[0].ValidValues | Should -Contain 'agent'
+            $vs[0].ValidValues | Should -Contain 'approval'
+        }
+    }
+
+    Context 'Attachment functions' {
+        It 'PClip-IssueAttachment-Upload -FilePath should have ValidateScript' {
+            $param = (Get-Command PClip-IssueAttachment-Upload).Parameters['FilePath']
+            $vs = $param.Attributes.Where({ $_ -is [System.Management.Automation.ValidateScriptAttribute] })
+            $vs.Count | Should -BeGreaterThan 0
+        }
+
+        It 'PClip-IssueAttachment-Download -OutFile should be mandatory' {
+            $param = (Get-Command PClip-IssueAttachment-Download).Parameters['OutFile']
+            $attr = $param.Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0]
+            $attr.Mandatory | Should -BeTrue
+        }
+    }
+
+    Context 'Cost functions' {
+        It 'PClip-Cost-ReportEvent should require all cost fields' {
+            $cmd = Get-Command PClip-Cost-ReportEvent
+            foreach ($name in @('CompanyId','AgentId','Provider','Model','InputTokens','OutputTokens','CostCents')) {
+                $cmd.Parameters[$name].Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0].Mandatory | Should -BeTrue -Because "$name should be mandatory"
+            }
+        }
+    }
+
+    Context 'Secret functions' {
+        It 'PClip-Secret-Create should require CompanyId, Name, Value' {
+            $cmd = Get-Command PClip-Secret-Create
+            foreach ($name in @('CompanyId','Name','Value')) {
+                $cmd.Parameters[$name].Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0].Mandatory | Should -BeTrue -Because "$name should be mandatory"
+            }
+        }
+    }
+}

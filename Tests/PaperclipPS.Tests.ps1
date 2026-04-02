@@ -165,6 +165,25 @@ Describe 'Module: PaperclipPS' {
             $attr.Mandatory | Should -BeTrue
             $attr.Position | Should -Be 0
         }
+
+        It 'PClip-Company-Update should throw when no updatable parameters are supplied' {
+            { PClip-Company-Update -CompanyId 'test-id' } | Should -Throw -ExpectedMessage '*At least one updatable parameter*'
+        }
+
+        It 'PClip-Company-Update should not throw when -Name is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Company-Update -CompanyId 'test-id' -Name 'NewName' } | Should -Not -Throw
+        }
+
+        It 'PClip-Company-Update should not throw when -Description is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Company-Update -CompanyId 'test-id' -Description 'New desc' } | Should -Not -Throw
+        }
+
+        It 'PClip-Company-Update should not throw when -BudgetMonthlyCents is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Company-Update -CompanyId 'test-id' -BudgetMonthlyCents 5000 } | Should -Not -Throw
+        }
     }
 
     Context 'Agent functions' {

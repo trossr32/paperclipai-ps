@@ -73,6 +73,9 @@ function PClip-Company-Update {
         if ($PSBoundParameters.ContainsKey("Name"))               { $body["name"] = $Name }
         if ($PSBoundParameters.ContainsKey("Description"))        { $body["description"] = $Description }
         if ($PSBoundParameters.ContainsKey("BudgetMonthlyCents")) { $body["budgetMonthlyCents"] = $BudgetMonthlyCents }
+        if ($body.Count -eq 0) {
+            throw "PClip-Company-Update: At least one updatable parameter (Name, Description, BudgetMonthlyCents) must be specified."
+        }
         Invoke-PClipApi -Method PATCH -Path "/companies/$CompanyId" -Body $body -BaseUrl $BaseUrl -Token $Token
     }
 }

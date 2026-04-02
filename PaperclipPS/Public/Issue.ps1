@@ -13,6 +13,9 @@ function PClip-Issue-List {
         [Parameter(HelpMessage = "Filter by project ID")]
         [string]$ProjectId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -23,7 +26,7 @@ function PClip-Issue-List {
     if ($Status)          { $query["status"] = $Status }
     if ($AssigneeAgentId) { $query["assigneeAgentId"] = $AssigneeAgentId }
     if ($ProjectId)       { $query["projectId"] = $ProjectId }
-    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/issues" -Query $query -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/issues" -Query $query -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Issue-Get {
@@ -32,6 +35,9 @@ function PClip-Issue-Get {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Issue ID")]
         [string]$IssueId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -39,7 +45,7 @@ function PClip-Issue-Get {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/issues/$IssueId" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/issues/$IssueId" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -74,6 +80,9 @@ function PClip-Issue-Create {
         [Parameter(HelpMessage = "Goal ID")]
         [string]$GoalId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -88,7 +97,7 @@ function PClip-Issue-Create {
     if ($ParentId)        { $body["parentId"] = $ParentId }
     if ($ProjectId)       { $body["projectId"] = $ProjectId }
     if ($GoalId)          { $body["goalId"] = $GoalId }
-    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/issues" -Body $body -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/issues" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Issue-Update {
@@ -131,6 +140,9 @@ function PClip-Issue-Update {
         [Parameter(HelpMessage = "Run ID for audit tracking")]
         [string]$RunId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -152,7 +164,7 @@ function PClip-Issue-Update {
         if ($body.Count -eq 0) {
             throw "PClip-Issue-Update: No updatable fields were provided. Specify at least one of: Status, Priority, Title, Description, AssigneeAgentId, ProjectId, GoalId, ParentId, BillingCode, Comment."
         }
-        Invoke-PClipApi -Method PATCH -Path "/issues/$IssueId" -Body $body -BaseUrl $BaseUrl -Token $Token -RunId $RunId
+        Invoke-PClipApi -Method PATCH -Path "/issues/$IssueId" -Body $body -BaseUrl $BaseUrl -Token $Token -RunId $RunId -Json:$Json
     }
 }
 
@@ -172,6 +184,9 @@ function PClip-Issue-Checkout {
         [Parameter(HelpMessage = "Run ID for audit tracking")]
         [string]$RunId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -180,7 +195,7 @@ function PClip-Issue-Checkout {
     )
     $body = @{ agentId = $AgentId }
     if ($ExpectedStatuses) { $body["expectedStatuses"] = @($ExpectedStatuses) }
-    Invoke-PClipApi -Method POST -Path "/issues/$IssueId/checkout" -Body $body -BaseUrl $BaseUrl -Token $Token -RunId $RunId
+    Invoke-PClipApi -Method POST -Path "/issues/$IssueId/checkout" -Body $body -BaseUrl $BaseUrl -Token $Token -RunId $RunId -Json:$Json
 }
 
 function PClip-Issue-Release {
@@ -189,6 +204,9 @@ function PClip-Issue-Release {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Issue ID to release")]
         [string]$IssueId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -196,6 +214,6 @@ function PClip-Issue-Release {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method POST -Path "/issues/$IssueId/release" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method POST -Path "/issues/$IssueId/release" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }

@@ -4,13 +4,16 @@ function PClip-Goal-List {
         [Parameter(Mandatory, Position = 0, HelpMessage = "Company ID")]
         [string]$CompanyId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/goals" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/goals" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Goal-Get {
@@ -19,6 +22,9 @@ function PClip-Goal-Get {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Goal ID")]
         [string]$GoalId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -26,7 +32,7 @@ function PClip-Goal-Get {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/goals/$GoalId" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/goals/$GoalId" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -49,6 +55,9 @@ function PClip-Goal-Create {
         [ValidateSet("active", "completed", "cancelled")]
         [string]$Status = "active",
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -61,7 +70,7 @@ function PClip-Goal-Create {
         status = $Status
     }
     if ($Description) { $body["description"] = $Description }
-    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/goals" -Body $body -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/goals" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Goal-Update {
@@ -77,6 +86,9 @@ function PClip-Goal-Update {
         [Parameter(HelpMessage = "New description")]
         [string]$Description,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -90,6 +102,6 @@ function PClip-Goal-Update {
         if ($body.Count -eq 0) {
             throw "PClip-Goal-Update: At least one of -Status or -Description must be specified."
         }
-        Invoke-PClipApi -Method PATCH -Path "/goals/$GoalId" -Body $body -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method PATCH -Path "/goals/$GoalId" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }

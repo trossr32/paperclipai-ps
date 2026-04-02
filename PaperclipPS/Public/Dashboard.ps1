@@ -4,6 +4,9 @@ function PClip-Dashboard-Get {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Company ID")]
         [string]$CompanyId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -11,6 +14,6 @@ function PClip-Dashboard-Get {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/dashboard" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/dashboard" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }

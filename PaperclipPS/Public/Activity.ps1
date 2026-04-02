@@ -14,6 +14,9 @@ function PClip-Activity-List {
         [Parameter(HelpMessage = "Filter by entity ID")]
         [string]$EntityId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -24,5 +27,5 @@ function PClip-Activity-List {
     if ($AgentId)    { $query["agentId"] = $AgentId }
     if ($EntityType) { $query["entityType"] = $EntityType }
     if ($EntityId)   { $query["entityId"] = $EntityId }
-    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/activity" -Query $query -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/activity" -Query $query -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }

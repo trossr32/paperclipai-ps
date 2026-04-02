@@ -22,6 +22,9 @@ function PClip-Cost-ReportEvent {
         [Parameter(Mandatory, HelpMessage = "Cost in cents")]
         [int]$CostCents,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -36,7 +39,7 @@ function PClip-Cost-ReportEvent {
         outputTokens = $OutputTokens
         costCents    = $CostCents
     }
-    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/cost-events" -Body $body -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/cost-events" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Cost-Summary {
@@ -45,6 +48,9 @@ function PClip-Cost-Summary {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Company ID")]
         [string]$CompanyId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -52,7 +58,7 @@ function PClip-Cost-Summary {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/costs/summary" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/costs/summary" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -62,6 +68,9 @@ function PClip-Cost-ByAgent {
         [Parameter(Mandatory, Position = 0, ValueFromPipelineByPropertyName, HelpMessage = "Company ID")]
         [string]$CompanyId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -69,7 +78,7 @@ function PClip-Cost-ByAgent {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/costs/by-agent" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/costs/by-agent" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -79,6 +88,9 @@ function PClip-Cost-ByProject {
         [Parameter(Mandatory, Position = 0, ValueFromPipelineByPropertyName, HelpMessage = "Company ID")]
         [string]$CompanyId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -86,6 +98,6 @@ function PClip-Cost-ByProject {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/costs/by-project" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/costs/by-project" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }

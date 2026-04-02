@@ -6,5 +6,6 @@ foreach ($file in @($Private + $Public)) {
         . $file.FullName
     } catch {
         Write-Error "Failed to import $($file.FullName): $_"
-    }
+        throw
+}
 }

@@ -87,6 +87,9 @@ function PClip-Goal-Update {
         $body = @{}
         if ($PSBoundParameters.ContainsKey("Status"))      { $body["status"] = $Status }
         if ($PSBoundParameters.ContainsKey("Description")) { $body["description"] = $Description }
+        if ($body.Count -eq 0) {
+            throw "PClip-Goal-Update: At least one of -Status or -Description must be specified."
+        }
         Invoke-PClipApi -Method PATCH -Path "/goals/$GoalId" -Body $body -BaseUrl $BaseUrl -Token $Token
     }
 }

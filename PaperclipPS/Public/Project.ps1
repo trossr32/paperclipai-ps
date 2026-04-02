@@ -83,6 +83,9 @@ function PClip-Project-Update {
     process {
         $body = @{}
         if ($PSBoundParameters.ContainsKey("Status")) { $body["status"] = $Status }
+        if ($body.Count -eq 0) {
+            throw "PClip-Project-Update: No updatable properties were specified. Provide at least one property to update, such as -Status."
+        }
         Invoke-PClipApi -Method PATCH -Path "/projects/$ProjectId" -Body $body -BaseUrl $BaseUrl -Token $Token
     }
 }

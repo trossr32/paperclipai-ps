@@ -206,6 +206,20 @@ Describe 'Module: PaperclipPS' {
             $cmd.Parameters['AgentId'].Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0].Mandatory | Should -BeTrue
             $cmd.Parameters['RevisionId'].Attributes.Where({ $_ -is [System.Management.Automation.ParameterAttribute] })[0].Mandatory | Should -BeTrue
         }
+
+        It 'PClip-Agent-Update should throw when no updatable parameters are supplied' {
+            { PClip-Agent-Update -AgentId 'test-id' } | Should -Throw -ExpectedMessage '*At least one updatable parameter*'
+        }
+
+        It 'PClip-Agent-Update should not throw when -AdapterConfig is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Agent-Update -AgentId 'test-id' -AdapterConfig @{ key = 'value' } } | Should -Not -Throw
+        }
+
+        It 'PClip-Agent-Update should not throw when -BudgetMonthlyCents is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Agent-Update -AgentId 'test-id' -BudgetMonthlyCents 1000 } | Should -Not -Throw
+        }
     }
 
     Context 'Issue functions' {
@@ -232,6 +246,25 @@ Describe 'Module: PaperclipPS' {
             $param.ParameterType.Name | Should -Be 'String[]'
             $vs = $param.Attributes.Where({ $_ -is [System.Management.Automation.ValidateSetAttribute] })
             $vs.Count | Should -BeGreaterThan 0
+        }
+
+        It 'PClip-Issue-Update should throw when no updatable fields are supplied' {
+            { PClip-Issue-Update -IssueId 'test-id' } | Should -Throw -ExpectedMessage '*No updatable fields were provided*'
+        }
+
+        It 'PClip-Issue-Update should not throw when -Status is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Issue-Update -IssueId 'test-id' -Status 'todo' } | Should -Not -Throw
+        }
+
+        It 'PClip-Issue-Update should not throw when -Title is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Issue-Update -IssueId 'test-id' -Title 'New Title' } | Should -Not -Throw
+        }
+
+        It 'PClip-Issue-Update should not throw when -Description is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Issue-Update -IssueId 'test-id' -Description 'New desc' } | Should -Not -Throw
         }
     }
 
@@ -270,6 +303,20 @@ Describe 'Module: PaperclipPS' {
             $vs.Count | Should -BeGreaterThan 0
             $vs[0].ValidValues | Should -Contain 'active'
         }
+
+        It 'PClip-Goal-Update should throw when no updatable parameters are supplied' {
+            { PClip-Goal-Update -GoalId 'test-id' } | Should -Throw -ExpectedMessage '*At least one of -Status or -Description*'
+        }
+
+        It 'PClip-Goal-Update should not throw when -Status is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Goal-Update -GoalId 'test-id' -Status 'active' } | Should -Not -Throw
+        }
+
+        It 'PClip-Goal-Update should not throw when -Description is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Goal-Update -GoalId 'test-id' -Description 'New desc' } | Should -Not -Throw
+        }
     }
 
     Context 'Project functions' {
@@ -279,6 +326,31 @@ Describe 'Module: PaperclipPS' {
             $attr.Mandatory | Should -BeTrue
             $attr.Position | Should -Be 0
             $attr.ValueFromPipeline | Should -BeTrue
+        }
+
+        It 'PClip-Project-Update should throw when no updatable properties are supplied' {
+            { PClip-Project-Update -ProjectId 'test-id' } | Should -Throw -ExpectedMessage '*No updatable properties were specified*'
+        }
+
+        It 'PClip-Project-Update should not throw when -Status is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Project-Update -ProjectId 'test-id' -Status 'active' } | Should -Not -Throw
+        }
+    }
+
+    Context 'Workspace functions' {
+        It 'PClip-Workspace-Update should throw when no updatable parameters are supplied' {
+            { PClip-Workspace-Update -ProjectId 'test-project' -WorkspaceId 'test-ws' } | Should -Throw -ExpectedMessage '*No workspace update parameters were provided*'
+        }
+
+        It 'PClip-Workspace-Update should not throw when -Name is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Workspace-Update -ProjectId 'test-project' -WorkspaceId 'test-ws' -Name 'NewName' } | Should -Not -Throw
+        }
+
+        It 'PClip-Workspace-Update should not throw when -IsPrimary is supplied' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            { PClip-Workspace-Update -ProjectId 'test-project' -WorkspaceId 'test-ws' -IsPrimary } | Should -Not -Throw
         }
     }
 

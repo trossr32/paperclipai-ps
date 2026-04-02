@@ -149,6 +149,9 @@ function PClip-Issue-Update {
         if ($PSBoundParameters.ContainsKey("ParentId"))        { $body["parentId"] = $ParentId }
         if ($PSBoundParameters.ContainsKey("BillingCode"))     { $body["billingCode"] = $BillingCode }
         if ($PSBoundParameters.ContainsKey("Comment"))         { $body["comment"] = $Comment }
+        if ($body.Count -eq 0) {
+            throw "PClip-Issue-Update: No updatable fields were provided. Specify at least one of: Status, Priority, Title, Description, AssigneeAgentId, ProjectId, GoalId, ParentId, BillingCode, Comment."
+        }
         Invoke-PClipApi -Method PATCH -Path "/issues/$IssueId" -Body $body -BaseUrl $BaseUrl -Token $Token -RunId $RunId
     }
 }

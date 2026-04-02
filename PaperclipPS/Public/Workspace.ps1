@@ -84,6 +84,9 @@ function PClip-Workspace-Update {
     if ($PSBoundParameters.ContainsKey("RepoUrl")) { $body["repoUrl"] = $RepoUrl }
     if ($PSBoundParameters.ContainsKey("RepoRef")) { $body["repoRef"] = $RepoRef }
     if ($IsPrimary.IsPresent)                      { $body["isPrimary"] = $true }
+    if ($body.Count -eq 0) {
+        throw "PClip-Workspace-Update: No workspace update parameters were provided. Specify at least one of -Name, -Cwd, -RepoUrl, -RepoRef, or -IsPrimary."
+    }
     Invoke-PClipApi -Method PATCH -Path "/projects/$ProjectId/workspaces/$WorkspaceId" -Body $body -BaseUrl $BaseUrl -Token $Token
 }
 

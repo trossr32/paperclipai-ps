@@ -106,6 +106,9 @@ function PClip-Agent-Update {
         $body = @{}
         if ($PSBoundParameters.ContainsKey("AdapterConfig"))      { $body["adapterConfig"] = $AdapterConfig }
         if ($PSBoundParameters.ContainsKey("BudgetMonthlyCents")) { $body["budgetMonthlyCents"] = $BudgetMonthlyCents }
+        if ($body.Count -eq 0) {
+            throw "PClip-Agent-Update: At least one updatable parameter (AdapterConfig, BudgetMonthlyCents) must be specified."
+        }
         Invoke-PClipApi -Method PATCH -Path "/agents/$AgentId" -Body $body -BaseUrl $BaseUrl -Token $Token
     }
 }

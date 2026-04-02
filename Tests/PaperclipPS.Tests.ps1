@@ -133,6 +133,36 @@ Describe 'Module: PaperclipPS' {
         }
     }
 
+    Context 'Json switch parameter' {
+        It 'every function should have -Json as a switch parameter' {
+            $allFunctions = Get-Command -Module PaperclipPS
+            foreach ($fn in $allFunctions) {
+                $param = $fn.Parameters['Json']
+                $param | Should -Not -BeNullOrEmpty -Because "$($fn.Name) should have -Json"
+                $param.ParameterType.Name | Should -Be 'SwitchParameter' -Because "$($fn.Name) -Json should be a switch"
+            }
+        }
+
+        It 'public function should pass -Json through to Invoke-PClipApi' {
+            Mock Invoke-PClipApi { } -ModuleName PaperclipPS
+            PClip-Company-Get -CompanyId 'test' -Json
+            Should -Invoke Invoke-PClipApi -ModuleName PaperclipPS -ParameterFilter { $Json -eq $true }
+        }
+
+        It 'Invoke-PClipApi -Json should convert result to JSON string' {
+            Mock Invoke-RestMethod { @{ id = 'c1'; name = 'Test' } } -ModuleName PaperclipPS
+            $result = & (Get-Module PaperclipPS) { Invoke-PClipApi -Method GET -Path '/test' -Json }
+            $result | Should -BeOfType [string]
+            ($result | ConvertFrom-Json).id | Should -Be 'c1'
+        }
+
+        It 'Invoke-PClipApi without -Json should return object' {
+            Mock Invoke-RestMethod { [pscustomobject]@{ id = 'c1'; name = 'Test' } } -ModuleName PaperclipPS
+            $result = & (Get-Module PaperclipPS) { Invoke-PClipApi -Method GET -Path '/test' }
+            $result.id | Should -Be 'c1'
+        }
+    }
+
     Context 'HelpMessage on every parameter' {
         It 'every user-facing parameter should have a HelpMessage' {
             $commonParams = @(

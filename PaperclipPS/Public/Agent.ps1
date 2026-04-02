@@ -4,13 +4,16 @@ function PClip-Agent-List {
         [Parameter(Mandatory, Position = 0, HelpMessage = "Company ID")]
         [string]$CompanyId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/agents" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/agents" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Agent-Get {
@@ -19,6 +22,9 @@ function PClip-Agent-Get {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Agent ID")]
         [string]$AgentId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -26,20 +32,23 @@ function PClip-Agent-Get {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/agents/$AgentId" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/agents/$AgentId" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
 function PClip-Agent-GetMe {
     [CmdletBinding()]
     param(
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method GET -Path "/agents/me" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/agents/me" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Agent-Create {
@@ -69,6 +78,9 @@ function PClip-Agent-Create {
         [Parameter(HelpMessage = "Adapter configuration as a hashtable")]
         [hashtable]$AdapterConfig,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -81,7 +93,7 @@ function PClip-Agent-Create {
     if ($Capabilities)  { $body["capabilities"] = $Capabilities }
     if ($AdapterType)   { $body["adapterType"] = $AdapterType }
     if ($AdapterConfig) { $body["adapterConfig"] = $AdapterConfig }
-    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/agents" -Body $body -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/agents" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Agent-Update {
@@ -96,6 +108,9 @@ function PClip-Agent-Update {
         [Parameter(HelpMessage = "Monthly budget in cents")]
         [int]$BudgetMonthlyCents,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -109,7 +124,7 @@ function PClip-Agent-Update {
         if ($body.Count -eq 0) {
             throw "PClip-Agent-Update: At least one updatable parameter (AdapterConfig, BudgetMonthlyCents) must be specified."
         }
-        Invoke-PClipApi -Method PATCH -Path "/agents/$AgentId" -Body $body -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method PATCH -Path "/agents/$AgentId" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -119,6 +134,9 @@ function PClip-Agent-Pause {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Agent ID")]
         [string]$AgentId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -126,7 +144,7 @@ function PClip-Agent-Pause {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/pause" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/pause" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -136,6 +154,9 @@ function PClip-Agent-Resume {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Agent ID")]
         [string]$AgentId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -143,7 +164,7 @@ function PClip-Agent-Resume {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/resume" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/resume" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -153,6 +174,9 @@ function PClip-Agent-Terminate {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Agent ID to permanently deactivate")]
         [string]$AgentId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -160,7 +184,7 @@ function PClip-Agent-Terminate {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/terminate" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/terminate" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -170,6 +194,9 @@ function PClip-Agent-CreateKey {
         [Parameter(Mandatory, Position = 0, ValueFromPipelineByPropertyName, HelpMessage = "Agent ID")]
         [string]$AgentId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -177,7 +204,7 @@ function PClip-Agent-CreateKey {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/keys" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/keys" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -187,6 +214,9 @@ function PClip-Agent-InvokeHeartbeat {
         [Parameter(Mandatory, Position = 0, ValueFromPipelineByPropertyName, HelpMessage = "Agent ID")]
         [string]$AgentId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -194,7 +224,7 @@ function PClip-Agent-InvokeHeartbeat {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/heartbeat/invoke" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method POST -Path "/agents/$AgentId/heartbeat/invoke" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -204,13 +234,16 @@ function PClip-Agent-Org {
         [Parameter(Mandatory, Position = 0, HelpMessage = "Company ID")]
         [string]$CompanyId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/org" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/org" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Agent-ConfigRevisions {
@@ -219,6 +252,9 @@ function PClip-Agent-ConfigRevisions {
         [Parameter(Mandatory, Position = 0, ValueFromPipelineByPropertyName, HelpMessage = "Agent ID")]
         [string]$AgentId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -226,7 +262,7 @@ function PClip-Agent-ConfigRevisions {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/agents/$AgentId/config-revisions" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/agents/$AgentId/config-revisions" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -239,11 +275,14 @@ function PClip-Agent-RollbackConfig {
         [Parameter(Mandatory, Position = 1, HelpMessage = "Config revision ID to roll back to")]
         [string]$RevisionId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method POST -Path "/agents/$AgentId/config-revisions/$RevisionId/rollback" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method POST -Path "/agents/$AgentId/config-revisions/$RevisionId/rollback" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }

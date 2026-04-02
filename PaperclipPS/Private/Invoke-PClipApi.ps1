@@ -21,7 +21,10 @@ function Invoke-PClipApi {
         [string]$Token,
 
         [Parameter(HelpMessage = "Run ID for audit tracking on mutations")]
-        [string]$RunId
+        [string]$RunId,
+
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json
     )
 
     $uri = "$BaseUrl$Path"
@@ -56,5 +59,10 @@ function Invoke-PClipApi {
         $splat["Body"] = ($Body | ConvertTo-Json -Depth 10)
     }
 
-    Invoke-RestMethod @splat
+    $result = Invoke-RestMethod @splat
+    if ($Json) {
+        $result | ConvertTo-Json -Depth 10
+    } else {
+        $result
+    }
 }

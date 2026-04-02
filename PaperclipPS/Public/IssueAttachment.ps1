@@ -4,6 +4,9 @@ function PClip-IssueAttachment-List {
         [Parameter(Mandatory, Position = 0, ValueFromPipelineByPropertyName, HelpMessage = "Issue ID")]
         [string]$IssueId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -11,7 +14,7 @@ function PClip-IssueAttachment-List {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/issues/$IssueId/attachments" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/issues/$IssueId/attachments" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -28,6 +31,9 @@ function PClip-IssueAttachment-Upload {
         [ValidateScript({ Test-Path $_ -PathType Leaf })]
         [string]$FilePath,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -39,7 +45,12 @@ function PClip-IssueAttachment-Upload {
     if ($Token) { $headers["Authorization"] = "Bearer $Token" }
 
     $form = @{ file = Get-Item -LiteralPath $FilePath }
-    Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -Form $form
+    $result = Invoke-RestMethod -Uri $uri -Method POST -Headers $headers -Form $form
+    if ($Json) {
+        $result | ConvertTo-Json -Depth 10
+    } else {
+        $result
+    }
 }
 
 function PClip-IssueAttachment-Download {
@@ -51,6 +62,9 @@ function PClip-IssueAttachment-Download {
         [Parameter(Mandatory, Position = 1, HelpMessage = "Local file path to save the downloaded content")]
         [string]$OutFile,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -58,6 +72,9 @@ function PClip-IssueAttachment-Download {
         [string]$Token
     )
     process {
+        if ($Json) {
+            Write-Warning "PClip-IssueAttachment-Download: -Json is ignored because this function writes to a file via -OutFile."
+        }
         $uri = "$BaseUrl/attachments/$AttachmentId/content"
         $headers = @{}
         if ($Token) { $headers["Authorization"] = "Bearer $Token" }
@@ -71,6 +88,9 @@ function PClip-IssueAttachment-Delete {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Attachment ID")]
         [string]$AttachmentId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -78,6 +98,6 @@ function PClip-IssueAttachment-Delete {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method DELETE -Path "/attachments/$AttachmentId" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method DELETE -Path "/attachments/$AttachmentId" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }

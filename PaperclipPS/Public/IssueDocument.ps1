@@ -4,6 +4,9 @@ function PClip-IssueDocument-List {
         [Parameter(Mandatory, Position = 0, ValueFromPipelineByPropertyName, HelpMessage = "Issue ID")]
         [string]$IssueId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -11,7 +14,7 @@ function PClip-IssueDocument-List {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/issues/$IssueId/documents" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/issues/$IssueId/documents" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -24,13 +27,16 @@ function PClip-IssueDocument-Get {
         [Parameter(Mandatory, Position = 1, HelpMessage = "Document key")]
         [string]$Key,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method GET -Path "/issues/$IssueId/documents/$Key" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/issues/$IssueId/documents/$Key" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-IssueDocument-Put {
@@ -54,6 +60,9 @@ function PClip-IssueDocument-Put {
         [Parameter(HelpMessage = "Base revision ID (required for updates to existing documents)")]
         [string]$BaseRevisionId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -66,7 +75,7 @@ function PClip-IssueDocument-Put {
         body   = $Body
     }
     if ($BaseRevisionId) { $reqBody["baseRevisionId"] = $BaseRevisionId }
-    Invoke-PClipApi -Method PUT -Path "/issues/$IssueId/documents/$Key" -Body $reqBody -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method PUT -Path "/issues/$IssueId/documents/$Key" -Body $reqBody -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-IssueDocument-Revisions {
@@ -78,13 +87,16 @@ function PClip-IssueDocument-Revisions {
         [Parameter(Mandatory, Position = 1, HelpMessage = "Document key")]
         [string]$Key,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method GET -Path "/issues/$IssueId/documents/$Key/revisions" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/issues/$IssueId/documents/$Key/revisions" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-IssueDocument-Delete {
@@ -96,11 +108,14 @@ function PClip-IssueDocument-Delete {
         [Parameter(Mandatory, Position = 1, HelpMessage = "Document key")]
         [string]$Key,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method DELETE -Path "/issues/$IssueId/documents/$Key" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method DELETE -Path "/issues/$IssueId/documents/$Key" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }

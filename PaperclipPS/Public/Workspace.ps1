@@ -4,13 +4,16 @@ function PClip-Workspace-List {
         [Parameter(Mandatory, Position = 0, HelpMessage = "Project ID")]
         [string]$ProjectId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method GET -Path "/projects/$ProjectId/workspaces" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/projects/$ProjectId/workspaces" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Workspace-Create {
@@ -34,6 +37,9 @@ function PClip-Workspace-Create {
         [Parameter(HelpMessage = "Mark as primary workspace")]
         [switch]$IsPrimary,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -45,7 +51,7 @@ function PClip-Workspace-Create {
     if ($RepoUrl) { $body["repoUrl"] = $RepoUrl }
     if ($RepoRef) { $body["repoRef"] = $RepoRef }
     if ($IsPrimary.IsPresent) { $body["isPrimary"] = $true }
-    Invoke-PClipApi -Method POST -Path "/projects/$ProjectId/workspaces" -Body $body -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method POST -Path "/projects/$ProjectId/workspaces" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Workspace-Update {
@@ -72,6 +78,9 @@ function PClip-Workspace-Update {
         [Parameter(HelpMessage = "Mark as primary workspace")]
         [switch]$IsPrimary,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -87,7 +96,7 @@ function PClip-Workspace-Update {
     if ($body.Count -eq 0) {
         throw "PClip-Workspace-Update: No workspace update parameters were provided. Specify at least one of -Name, -Cwd, -RepoUrl, -RepoRef, or -IsPrimary."
     }
-    Invoke-PClipApi -Method PATCH -Path "/projects/$ProjectId/workspaces/$WorkspaceId" -Body $body -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method PATCH -Path "/projects/$ProjectId/workspaces/$WorkspaceId" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Workspace-Delete {
@@ -99,11 +108,14 @@ function PClip-Workspace-Delete {
         [Parameter(Mandatory, Position = 1, HelpMessage = "Workspace ID")]
         [string]$WorkspaceId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method DELETE -Path "/projects/$ProjectId/workspaces/$WorkspaceId" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method DELETE -Path "/projects/$ProjectId/workspaces/$WorkspaceId" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }

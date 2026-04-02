@@ -4,13 +4,16 @@ function PClip-Project-List {
         [Parameter(Mandatory, Position = 0, HelpMessage = "Company ID")]
         [string]$CompanyId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
         [Parameter(HelpMessage = "Bearer token for authentication")]
         [string]$Token
     )
-    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/projects" -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method GET -Path "/companies/$CompanyId/projects" -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Project-Get {
@@ -19,6 +22,9 @@ function PClip-Project-Get {
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName, HelpMessage = "Project ID")]
         [string]$ProjectId,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -26,7 +32,7 @@ function PClip-Project-Get {
         [string]$Token
     )
     process {
-        Invoke-PClipApi -Method GET -Path "/projects/$ProjectId" -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method GET -Path "/projects/$ProjectId" -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
 
@@ -51,6 +57,9 @@ function PClip-Project-Create {
         [Parameter(HelpMessage = "Workspace configuration as a hashtable (name, cwd, repoUrl, repoRef, isPrimary)")]
         [hashtable]$Workspace,
 
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
+
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
 
@@ -62,7 +71,7 @@ function PClip-Project-Create {
     if ($GoalIds)     { $body["goalIds"] = @($GoalIds) }
     if ($Status)      { $body["status"] = $Status }
     if ($Workspace)   { $body["workspace"] = $Workspace }
-    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/projects" -Body $body -BaseUrl $BaseUrl -Token $Token
+    Invoke-PClipApi -Method POST -Path "/companies/$CompanyId/projects" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
 }
 
 function PClip-Project-Update {
@@ -73,6 +82,9 @@ function PClip-Project-Update {
 
         [Parameter(HelpMessage = "New project status")]
         [string]$Status,
+
+        [Parameter(HelpMessage = "Output as a JSON string")]
+        [switch]$Json,
 
         [Parameter(HelpMessage = "Paperclip API base URL")]
         [string]$BaseUrl = "http://localhost:3100/api",
@@ -86,6 +98,6 @@ function PClip-Project-Update {
         if ($body.Count -eq 0) {
             throw "PClip-Project-Update: No updatable properties were specified. Provide at least one property to update, such as -Status."
         }
-        Invoke-PClipApi -Method PATCH -Path "/projects/$ProjectId" -Body $body -BaseUrl $BaseUrl -Token $Token
+        Invoke-PClipApi -Method PATCH -Path "/projects/$ProjectId" -Body $body -BaseUrl $BaseUrl -Token $Token -Json:$Json
     }
 }
